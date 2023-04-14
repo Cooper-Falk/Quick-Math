@@ -25,9 +25,11 @@ xtest = tf.keras.utils.normalize(xtest, axis=1)
 
 currentmodel = tf.keras.models.load_model("first.model")
 
-current = 1
-while os.path.isfile(f"numberpictures/number{current}.png"):
-    img = Image.open(f"numberpictures/number{current}.png").convert("L")
+# current = 1
+# while os.path.isfile(f"numberpictures/number{current}.png"):
+#     img = Image.open(f"numberpictures/number{current}.png").convert("L")
+def guessNumber():
+    img = Image.open("currentImg.png").convert("L")
     img = img.resize((28, 28))
     img_array = np.invert(np.array(img))
     img_array = img_array.reshape(1, 28, 28)
@@ -41,5 +43,48 @@ while os.path.isfile(f"numberpictures/number{current}.png"):
     # img.show()
     prediction = currentmodel.predict(img_array)
     number = np.argmax(prediction)
-    print("Number",current,":", number)
-    current += 1
+    print("This is most likey a", number)
+#     current += 1
+
+# ott = Image.open("onetwothree.png")
+#
+#
+# width,height = ott.size
+#
+# print(width,height)
+
+
+trigger = True
+newImg = Image.open("onetwothree.png")
+print(newImg.size)
+img_array = np.invert(np.array(newImg))
+print(img_array.shape)
+img_array = img_array / 255.0
+print(img_array.shape)
+newstart = 0
+while trigger:
+    runner = True
+    start = 0
+    print(img_array[50][50])
+    for x in range(img_array.shape[0]):
+        for y in range(img_array.shape[1]):
+            if np.any(img_array[x][y] != 0):
+                if runner:
+                    start = y
+                    runner = False
+    img_array = img_array[0:start, 100:img_array.shape[1]]
+    if runner == False:
+        for x in range(img_array.shape[0]):
+            for y in range(img_array.shape[1]):
+                if np.any(img_array[x][y] == 0):
+                    print(y)
+                    start = y-50
+        croppedimg = newImg.crop((start, 0, start+100, 100))
+        currentImg = croppedimg.save("currentImg.png")
+        currentImg1 = Image.open("currentImg.png")
+        currentImg1.show()
+        guessNumber()
+        newstart += 100
+    else:
+        trigger = False
+    img_array = img_array[0:100, 100:img_array.shape[1]]
